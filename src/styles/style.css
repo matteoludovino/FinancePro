@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    text-decoration: none;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    background: #ffffff;
+    color: #515353;
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    background: #f8f9fa;
+    height: 5rem;
+    width: 100%;
+    padding: 1rem 10%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.right-icons {
+    margin-left: auto; 
+}
+
+.nav-item.logo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-right: auto;
+}
+
+.nav-item {
+    margin-left: 1.5rem;
+}
+
+.nav-item a {
+    font-size: 0.95rem;
+    color: #000;
+    font-weight: 500;
+    transition: 0.1s ease;
+    text-decoration: none;
+}
+
+.nav-item svg {
+    height: 30px;
+    cursor: pointer;
+}
+
+main {
+    padding: 7rem 10% 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.resume {
+    display: flex;
+    padding: 20px 0;
+    gap: 2rem;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.resume > div {
+    flex: 1;
+    min-width: 200px;
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.resume h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #515353;
+}
+
+.resume p {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.entrada {
+    border-top: 4px solid #4CAF50;
+}
+
+.saida {
+    border-top: 4px solid #F44336;
+}
+
+.saldo {
+    border-top: 4px solid #2196F3;
+}
+
+.newItem {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.divDesc, .divType, .divAmount {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 150px;
+}
+
+.newItem label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.newItem input, .newItem select {
+    padding: 0.7rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+#btnNew {
+    background-color: #2C73D2;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+#btnNew:hover {
+    background-color: #1a5bb3;
+}
+
+.divTable {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+table {
+    width: 100%;
+    padding: 20px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-collapse: collapse;
+}
+
+th {
+    text-align: start;
+    border-bottom: 2px solid #eee;
+    padding: 1rem;
+    font-weight: 600;
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+i {
+    font-size: 1.5rem;
+}
+
+.bxs-chevron-up-circle {
+    color: #00C9A7;
+}
+
+.bxs-chevron-down-circle {
+    color: #D83121;
+}
+
+.columnAction {
+    width: 60px;
+    text-align: center;
+}
+
+.columnAction > button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.columnAmount {
+    width: 30%;
+}
+
+.columnType {
+    width: 100px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .resume {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .resume > div {
+        width: 100%;
+    }
+    
+    .newItem {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
