@@ -1,10 +1,10 @@
-package br.com.finance.FinancePro.financias.Valores.Model;
+package br.com.finance.FinancePro.financias.Transacoes.Model;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tb_valores")
-public class ValoresModel {
+public class TransacaoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,10 +13,10 @@ public class ValoresModel {
     private float amount;
     private String type;
 
-    public ValoresModel() {
+    public TransacaoModel() {
     }
 
-    public ValoresModel(long id, String type, float amount, String descItem) {
+    public TransacaoModel(long id, String type, float amount, String descItem) {
         this.id = id;
         this.type = type;
         this.amount = amount;
