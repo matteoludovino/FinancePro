@@ -13,6 +13,5 @@ public class TransacaoService {
 
     public List<TransacaoModel> getAll() {return transacaoRepository.findAll();}
     public TransacaoModel save(TransacaoModel transacaoModel) {return transacaoRepository.save(transacaoModel);}
-    public void delete(Long id) {
-        transacaoRepository.deleteById(id);}
+    public void delete(Long id) {transacaoRepository.deleteById(id);}
 }

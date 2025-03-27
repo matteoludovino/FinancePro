@@ -3,7 +3,7 @@ package br.com.finance.FinancePro.financias.Transacoes.Model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "tb_valores")
+@Table(name = "tb_transações")
 public class TransacaoModel {
 
     @Id
