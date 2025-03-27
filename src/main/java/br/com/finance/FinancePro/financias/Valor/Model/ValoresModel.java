@@ -1,46 +1,40 @@
 package br.com.finance.FinancePro.financias.Valor.Model;
 
 
+import br.com.finance.FinancePro.financias.Transacoes.Model.TransacaoModel;
 import jakarta.persistence.*;
+import org.hibernate.annotations.DialectOverride;
+import org.hibernate.annotations.JoinFormula;
 
+import javax.xml.catalog.Catalog;
 import java.util.List;
 
 
 @Entity
 @Table(name = "tb_valores")
-public class ValoresModel  {
+public class ValoresModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private int Entrada;
+    private float Entrada;
     private int Saida;
-    private int ValorTot;
-
+    private float ValorTot;
 
     public ValoresModel() {
     }
 
-    public ValoresModel(long id, int entrada, int saida, int valorTot) {
-        this.id = id;
+    public ValoresModel(float entrada, int saida, float valorTot) {
         Entrada = entrada;
         Saida = saida;
-        ValorTot = ValorTot;
+        ValorTot = valorTot;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public int getEntrada() {
+    public float getEntrada() {
         return Entrada;
     }
 
-    public void setEntrada(int entrada) {
+    public void setEntrada(float entrada) {
         Entrada = entrada;
     }
 
@@ -52,7 +46,7 @@ public class ValoresModel  {
         Saida = saida;
     }
 
-    public int getValorTot() {
-        return ValorTot = this.Entrada-this.Saida;
+    public float getValorTot() {
+        return ValorTot = this.Entrada - this.Saida;
     }
 }

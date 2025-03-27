@@ -1,7 +1,7 @@
 package br.com.finance.FinancePro.financias.Transacoes.Model;
-
-import br.com.finance.FinancePro.financias.Valor.Model.ValoresModel;
 import jakarta.persistence.*;
+import org.w3c.dom.Text;
+
 
 @Entity
 @Table(name = "tb_transações")
@@ -17,19 +17,10 @@ public class TransacaoModel {
     public TransacaoModel() {
     }
 
-    public TransacaoModel(long id, String type, float amount, String descItem) {
-        this.id = id;
-        this.type = type;
-        this.amount = amount;
+    public TransacaoModel(String descItem, float amount, String type) {
         this.descItem = descItem;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
+        this.amount = amount;
+        this.type = type;
     }
 
     public String getDescItem() {
@@ -48,7 +39,7 @@ public class TransacaoModel {
         this.amount = amount;
     }
 
-    public String getType() {
+    public String isType() {
         return type;
     }
 
