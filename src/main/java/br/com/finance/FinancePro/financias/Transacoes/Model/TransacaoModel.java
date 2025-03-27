@@ -1,5 +1,6 @@
 package br.com.finance.FinancePro.financias.Transacoes.Model;
 
+import br.com.finance.FinancePro.financias.Valor.Model.ValoresModel;
 import jakarta.persistence.*;
 
 @Entity

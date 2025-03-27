@@ -1,26 +1,31 @@
 package br.com.finance.FinancePro.financias.Valor.Model;
 
-import br.com.finance.FinancePro.financias.Transacoes.Model.TransacaoModel;
+
 import jakarta.persistence.*;
+
+import java.util.List;
 
 
 @Entity
 @Table(name = "tb_valores")
-public class ValoresModel {
+public class ValoresModel  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private int Entrada;
     private int Saida;
+    private int ValorTot;
+
 
     public ValoresModel() {
     }
 
-    public ValoresModel(long id, int entrada, int saida) {
+    public ValoresModel(long id, int entrada, int saida, int valorTot) {
         this.id = id;
         Entrada = entrada;
         Saida = saida;
+        ValorTot = ValorTot;
     }
 
     public long getId() {
@@ -45,5 +50,9 @@ public class ValoresModel {
 
     public void setSaida(int saida) {
         Saida = saida;
+    }
+
+    public int getValorTot() {
+        return ValorTot = this.Entrada-this.Saida;
     }
 }
