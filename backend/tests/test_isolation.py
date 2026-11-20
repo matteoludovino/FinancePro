@@ -20,10 +20,28 @@ def _account(owner: TestClient) -> int:
     return int(response.json()["id"])
 
 
-FACTORIES: dict[str, Callable[[TestClient], int]] = {"account_id": _account}
+def _category(owner: TestClient) -> int:
+    response = owner.post("/api/categories", json={"name": "Minha categoria", "type": "expense"})
+    return int(response.json()["id"])
+
+
+def _rule(owner: TestClient) -> int:
+    body = {"match_type": "contains", "pattern": "uber", "sets_kind": "ignored"}
+    response = owner.post("/api/rules", json=body)
+    return int(response.json()["id"])
+
+
+FACTORIES: dict[str, Callable[[TestClient], int]] = {
+    "account_id": _account,
+    "category_id": _category,
+    "rule_id": _rule,
+}
 
 # Plausible bodies, so a request reaches the ownership check instead of failing validation first.
-BODIES: dict[str, dict[str, object]] = {"PATCH": {"name": "Outro nome"}}
+BODIES: dict[str, dict[str, object]] = {
+    "PATCH": {"name": "Outro nome"},
+    "PUT": {"match_type": "contains", "pattern": "99app", "sets_kind": "transfer"},
+}
 
 
 def _routes_with_ids() -> list[tuple[str, str]]:

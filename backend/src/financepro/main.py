@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from financepro.accounts import routes as accounts
 from financepro.api import health
 from financepro.auth import routes as auth
+from financepro.categories import routes as categories
+from financepro.categorization import routes as rules
 from financepro.common import errors, origin
 from financepro.settings import get_settings
 
@@ -19,7 +21,7 @@ def create_app() -> FastAPI:
     )
     errors.install(app)
     origin.install(app)
-    for module in (health, auth, accounts):
+    for module in (health, auth, accounts, categories, rules):
         app.include_router(module.router, prefix="/api")
     return app
 

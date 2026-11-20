@@ -2,5 +2,7 @@
 
 from financepro.accounts.models import Account, AccountKind
 from financepro.auth.models import Session, User
+from financepro.categories.models import Category
+from financepro.categorization.models import Rule
 
-__all__ = ["Account", "AccountKind", "Session", "User"]
+__all__ = ["Account", "AccountKind", "Category", "Rule", "Session", "User"]

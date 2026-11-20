@@ -9,6 +9,7 @@ from financepro.auth import limits, passwords, sessions
 from financepro.auth.models import User
 from financepro.auth.schemas import DeleteAccountIn, LoginIn, SignupIn, UserOut
 from financepro.auth.sessions import CurrentUser
+from financepro.categories import defaults
 from financepro.db import get_db
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -35,6 +36,7 @@ def signup(body: SignupIn, db: DB, response: Response) -> UserOut:
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=409, detail="Já existe uma conta com este e-mail.") from None
+    defaults.seed(db, user.id)
     sessions.start(db, response, user)
     return UserOut.model_validate(user)
 

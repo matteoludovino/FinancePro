@@ -21,5 +21,13 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // The app's pages; the landing page, /api and static files never pass through here.
-  matcher: ["/painel/:path*", "/contas/:path*", "/configuracoes/:path*", "/entrar", "/criar-conta"],
+  matcher: [
+    "/painel/:path*",
+    "/contas/:path*",
+    "/categorias/:path*",
+    "/regras/:path*",
+    "/configuracoes/:path*",
+    "/entrar",
+    "/criar-conta",
+  ],
 };
