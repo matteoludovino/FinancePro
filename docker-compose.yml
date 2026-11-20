@@ -1,0 +1,20 @@
+# Local development infrastructure. The API and the web app run on the host.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: financepro
+      POSTGRES_PASSWORD: financepro
+      POSTGRES_DB: financepro
+    ports:
+      - "5437:5432" # not 5432, to avoid clashing with a PostgreSQL already running on the host
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financepro -d financepro"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
