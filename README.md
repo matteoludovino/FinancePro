@@ -36,5 +36,5 @@ uv run alembic check
 uv run pytest                              # against the PostgreSQL above (database financepro_test)
 
 cd ../frontend
-npm run lint && npm run typecheck && npm test && npm run build
+npm run lint && npm run format:check && npm run typecheck && npm test && npm run build
 ```

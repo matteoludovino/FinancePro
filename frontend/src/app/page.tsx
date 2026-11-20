@@ -1,12 +1,30 @@
-import { ApiStatus } from "./api-status";
+import Link from "next/link";
 
-// Placeholder home for the scaffold: proves the /api rewrite reaches FastAPI.
 export default function Home() {
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-3 p-6">
-      <h1 className="text-3xl font-semibold tracking-tight">FinancePro</h1>
-      <p className="text-zinc-600">Importe o extrato, categorize os gastos e acompanhe o orçamento.</p>
-      <ApiStatus />
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 p-6">
+      <p className="text-sm font-semibold text-emerald-700">FinancePro</p>
+      <h1 className="text-4xl font-semibold tracking-tight text-zinc-900">
+        Seu extrato vira um retrato claro de para onde vai o seu dinheiro.
+      </h1>
+      <p className="text-lg text-zinc-600">
+        Importe o CSV do banco, deixe os gastos categorizados e acompanhe o orçamento do mês, com o cartão de
+        crédito e as parcelas contados do jeito certo.
+      </p>
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href="/criar-conta"
+          className="rounded-lg bg-emerald-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-800"
+        >
+          Criar conta grátis
+        </Link>
+        <Link
+          href="/entrar"
+          className="rounded-lg border border-zinc-300 bg-white px-5 py-2.5 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+        >
+          Entrar
+        </Link>
+      </div>
     </main>
   );
 }

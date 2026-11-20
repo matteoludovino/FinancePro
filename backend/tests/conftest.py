@@ -5,7 +5,7 @@ test runs inside a transaction that is rolled back, so tests never see each othe
 """
 
 import os
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import pytest
 from alembic import command
@@ -23,8 +23,11 @@ os.environ["DATABASE_URL"] = TEST_URL.render_as_string(hide_password=False)
 os.environ["ENVIRONMENT"] = "test"
 get_settings.cache_clear()
 
-from financepro.db import get_db, get_engine  # noqa: E402  # after the environment points at the test database
+from financepro.auth import limits  # noqa: E402  # after the environment points at the test database
+from financepro.db import get_db, get_engine  # noqa: E402
 from financepro.main import create_app  # noqa: E402
+
+PASSWORD = "senha-forte-de-teste"
 
 
 def _create_database() -> None:
@@ -61,9 +64,45 @@ def db() -> Iterator[Session]:
         connection.close()
 
 
+@pytest.fixture(autouse=True)
+def _fresh_limits() -> None:
+    limits.failed_by_email.clear()
+    limits.all_attempts.clear()
+
+
 @pytest.fixture
-def client(db: Session) -> Iterator[TestClient]:
+def make_client(db: Session) -> Iterator[Callable[[], TestClient]]:
+    """Each client is a separate browser (its own cookies), all sharing the test's transaction."""
     app = create_app()
     app.dependency_overrides[get_db] = lambda: db
-    with TestClient(app) as test_client:
-        yield test_client
+    clients: list[TestClient] = []
+
+    def make() -> TestClient:
+        # Browsers send Origin on every POST/PATCH/DELETE; these clients behave like the web app's pages.
+        test_client = TestClient(app, headers={"origin": get_settings().web_origin})
+        clients.append(test_client)
+        return test_client
+
+    yield make
+    for test_client in clients:
+        test_client.close()
+
+
+@pytest.fixture
+def client(make_client: Callable[[], TestClient]) -> TestClient:
+    return make_client()
+
+
+@pytest.fixture
+def signed_in(make_client: Callable[[], TestClient]) -> Callable[..., TestClient]:
+    """A new browser, signed in as a new user."""
+    counter = iter(range(1, 1_000))
+
+    def sign_up(email: str | None = None, name: str = "Ana") -> TestClient:
+        browser = make_client()
+        email = email or f"user{next(counter)}@example.com"
+        response = browser.post("/api/auth/signup", json={"name": name, "email": email, "password": PASSWORD})
+        assert response.status_code == 201, response.text
+        return browser
+
+    return sign_up
