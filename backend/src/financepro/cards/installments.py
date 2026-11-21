@@ -130,6 +130,7 @@ class Progress:
     amount_cents: int  # the latest installment's amount (negative: money leaving)
     last_month: date  # month of the latest imported installment
     future: list[tuple[date, int]]  # (month, amount) for each installment still to come
+    category_id: int | None  # the latest installment's category: where the next ones will count
 
 
 def progress(db: Session, owner_id: int) -> list[Progress]:
@@ -154,5 +155,5 @@ def progress(db: Session, owner_id: int) -> list[Progress]:
         k = last.installment_k or 0
         month = month_start(last.effective_date)
         future = [(add_months(month, i), last.amount_cents) for i in range(1, group.installments - k + 1)]
-        result.append(Progress(group, k, last.amount_cents, month, future))
+        result.append(Progress(group, k, last.amount_cents, month, future, last.category_id))
     return sorted(result, key=lambda p: (not p.future, p.future[-1][0] if p.future else p.last_month))

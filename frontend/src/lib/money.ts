@@ -25,3 +25,26 @@ export function parseCents(input: string): number | null {
 export function centsToInput(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
+const compact = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+/** 685000 → "R$ 6,9 mil", for axis ticks and tight spots; full values stay in tooltips and tables. */
+export function formatCompact(cents: number): string {
+  return compact.format(cents / 100);
+}
+
+const rounded = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  maximumFractionDigits: 0,
+});
+
+/** 70648 → "R$ 706": whole reais, for a label next to a mark (the exact value is one hover away). */
+export function formatRounded(cents: number): string {
+  return Math.abs(cents) >= 1_000_000 ? formatCompact(cents) : rounded.format(cents / 100);
+}

@@ -3,6 +3,7 @@
 from financepro.accounts.models import Account, AccountKind
 from financepro.ai.models import AiSuggestion, AiUsage
 from financepro.auth.models import Session, User
+from financepro.budgets.models import Budget
 from financepro.cards.models import InstallmentGroup
 from financepro.categories.models import Category
 from financepro.categorization.models import Rule
@@ -14,6 +15,7 @@ __all__ = [
     "AccountKind",
     "AiSuggestion",
     "AiUsage",
+    "Budget",
     "Category",
     "ImportBatch",
     "ImportProfile",

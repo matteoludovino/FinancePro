@@ -1,28 +1,20 @@
-import re
 from datetime import date
 
 from fastapi import HTTPException
 from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import Session
 
-from financepro import clock
+from financepro import clock, months
 from financepro.categories.service import get_category
 from financepro.categorization.engine import Categorizer
 from financepro.categorization.models import Kind, Rule
 from financepro.transactions.models import CategorySource, Transaction
 from financepro.transactions.schemas import BulkIn, TransactionPatch
 
-_MONTH = re.compile(r"^(\d{4})-(\d{2})$")
-
 
 def _month_range(month: str) -> tuple[date, date]:
-    found = _MONTH.match(month)
-    if not found or not 1 <= int(found.group(2)) <= 12:
-        raise HTTPException(status_code=422, detail="Mês inválido; use AAAA-MM.")
-    year, number = int(found.group(1)), int(found.group(2))
-    start = date(year, number, 1)
-    end = date(year + number // 12, number % 12 + 1, 1)
-    return start, end
+    start = months.parse(month)
+    return start, months.following(start)
 
 
 def _visible(owner_id: int) -> Select[Transaction]:

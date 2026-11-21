@@ -160,3 +160,34 @@ export type Installments = {
 };
 
 export type TransferPair = { outflow: Transaction; inflow: Transaction };
+
+export type Overview = {
+  month: string;
+  income_cents: number;
+  expense_cents: number;
+  previous_income_cents: number;
+  previous_expense_cents: number;
+  uncategorized: number;
+  ai_pending: number;
+};
+
+export type FlowMonth = { month: string; income_cents: number; expense_cents: number };
+
+export type CategoryTotal = {
+  category_id: number | null;
+  name: string;
+  total_cents: number;
+  children: CategoryTotal[];
+};
+
+export type MerchantTotal = { merchant: string; total_cents: number; count: number };
+
+export type Commitment = { month: string; amount_cents: number };
+
+export type BudgetStatus = {
+  category_id: number;
+  limit_cents: number;
+  spent_cents: number;
+  committed_cents: number;
+  status: "ok" | "warning" | "over";
+};

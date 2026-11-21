@@ -47,3 +47,9 @@ export function addMonths(month: string, delta: number): string {
   const index = year * 12 + (number - 1) + delta;
   return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, "0")}`;
 }
+
+/** "2026-11-01" or "2026-11" → "nov/26" */
+export function shortMonth(iso: string): string {
+  const [year, month] = iso.split("-");
+  return `${MONTHS[Number(month) - 1]}/${year.slice(2)}`;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { centsToInput, formatCents, parseCents } from "./money";
+import { centsToInput, formatCents, formatCompact, formatRounded, parseCents } from "./money";
 
 // Intl separates "R$" from the number with a no-break space.
 const nbsp = (s: string) => s.replace(/ /g, " ");
@@ -37,5 +37,19 @@ describe("parseCents", () => {
 
   it("round-trips with centsToInput", () => {
     for (const cents of [0, 5, 2990, 123456, 100000000]) expect(parseCents(centsToInput(cents))).toBe(cents);
+  });
+});
+
+describe("formatCompact", () => {
+  it("shortens thousands for axes", () => {
+    expect(formatCompact(685000)).toBe(nbsp("R$ 6,9 mil"));
+    expect(formatCompact(9990)).toBe(nbsp("R$ 99,9"));
+  });
+});
+
+describe("formatRounded", () => {
+  it("drops cents for labels, and goes compact from ten thousand", () => {
+    expect(formatRounded(70648)).toBe(nbsp("R$ 706"));
+    expect(formatRounded(1250000)).toBe(nbsp("R$ 12,5 mil"));
   });
 });

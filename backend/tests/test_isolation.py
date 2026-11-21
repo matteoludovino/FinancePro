@@ -69,6 +69,7 @@ BODIES: dict[tuple[str, str], dict[str, object]] = {
     ("POST", "/api/imports/{batch_id}/confirm"): {},
     ("POST", "/api/imports/{batch_id}/undo"): {},
     ("PATCH", "/api/transactions/{transaction_id}"): {"notes": "x"},
+    ("PUT", "/api/budgets/{category_id}"): {"limit_cents": 50_000},
 }
 
 

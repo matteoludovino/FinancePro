@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMonths, currentMonth, formatDate, monthLabel, shortDate } from "./dates";
+import { addMonths, currentMonth, formatDate, monthLabel, shortDate, shortMonth } from "./dates";
 
 describe("dates", () => {
   it("formats calendar days without a time zone shift", () => {
@@ -19,5 +19,12 @@ describe("dates", () => {
 
   it("reads the current month from the local calendar", () => {
     expect(currentMonth(new Date(2026, 0, 31, 23, 30))).toBe("2026-01");
+  });
+});
+
+describe("shortMonth", () => {
+  it("abbreviates for chart axes", () => {
+    expect(shortMonth("2026-11-01")).toBe("nov/26");
+    expect(shortMonth("2027-01")).toBe("jan/27");
   });
 });

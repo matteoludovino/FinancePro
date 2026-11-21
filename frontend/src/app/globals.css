@@ -8,3 +8,16 @@
 body {
   @apply bg-zinc-50 font-sans text-zinc-900;
 }
+
+/* Chart roles (dataviz palette, light). Series slots in fixed order; validated with the skill's
+   validate_palette.js: blue/orange pass every check on white. Status colors are reserved for state. */
+:root {
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-1-soft: #86b6ef;
+  --chart-grid: #e1e0d9;
+  --chart-axis: #898781;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-critical: #d03b3b;
+}
