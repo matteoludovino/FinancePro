@@ -1,0 +1,20 @@
+# Render Blueprint (free plan). Create it from the dashboard: New > Blueprint > this repository.
+# PostgreSQL is external (Neon free plan): fill DATABASE_URL with its connection string.
+services:
+  - type: web
+    name: financepro-api
+    runtime: docker
+    plan: free              # sleeps after 15 min without traffic; the first request wakes it (~1 min)
+    region: virginia        # next to the Neon database (aws-us-east-1)
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false         # Neon connection string, with ?sslmode=require
+      - key: WEB_ORIGIN
+        sync: false         # the Vercel URL, e.g. https://financepro.vercel.app (Origin check)
+      - key: ANTHROPIC_API_KEY
+        sync: false         # optional: without it the AI is off; the demo shows cached suggestions
+      - key: DEMO_MODE
+        value: "true"       # public demo: a sandbox per visitor, sample files only, no sign-up

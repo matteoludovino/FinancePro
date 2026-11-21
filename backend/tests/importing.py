@@ -38,7 +38,12 @@ def import_file(browser: TestClient, account_id: int, content: str | bytes) -> d
 
 
 def transactions(browser: TestClient, **params: Any) -> list[dict[str, Any]]:
-    response = browser.get("/api/transactions", params={"limit": 200, **params})
-    assert response.status_code == 200, response.text
-    items: list[dict[str, Any]] = response.json()["items"]
-    return items
+    """Every matching transaction, following the pages."""
+    items: list[dict[str, Any]] = []
+    while True:
+        response = browser.get("/api/transactions", params={"limit": 200, "offset": len(items), **params})
+        assert response.status_code == 200, response.text
+        page = response.json()
+        items += page["items"]
+        if len(items) >= page["total"] or not page["items"]:
+            return items

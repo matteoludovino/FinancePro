@@ -122,6 +122,10 @@ CARD_SHOPS: list[tuple[str, float, float, int, int]] = [
     ("Restaurante Sabor da Casa", 45, 160, 1, 4),
     ("Amazon", 40, 300, 0, 2),
     ("Starbucks", 18, 35, 0, 3),
+    # Merchants no rule or built-in list knows: the AI's turn (its answers are cached for the demo).
+    ("LIVRARIA CULTURA", 40, 160, 0, 1),
+    ("CLINICA SORRISO", 150, 350, 0, 1),
+    ("PET FELIZ", 60, 180, 0, 1),
 ]
 SUBSCRIPTIONS = [("Netflix.com", 5590), ("Spotify", 2190), ("Smart Fit", 12990)]
 # description, installment value, number of installments, months before today of the first one

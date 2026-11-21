@@ -6,10 +6,12 @@ from sqlalchemy.orm import Session
 
 from financepro.auth.sessions import CurrentUser
 from financepro.db import get_db
+from financepro.demo.samples import is_sample
 from financepro.importers import service
 from financepro.importers.mapping import Mapping
 from financepro.importers.reader import MAX_BYTES
 from financepro.importers.schemas import BatchOut, ConfirmIn, UndoIn
+from financepro.settings import get_settings
 
 router = APIRouter(prefix="/imports", tags=["imports"])
 
@@ -26,6 +28,12 @@ def upload(
     data = file.file.read(MAX_BYTES + 1)
     if len(data) > MAX_BYTES:
         raise HTTPException(status_code=413, detail="O arquivo passa de 2 MB. Exporte um período menor.")
+    if get_settings().demo_mode and not is_sample(data):
+        # A public demo never receives anyone's real statement (docs/adr/0007).
+        raise HTTPException(
+            status_code=422,
+            detail="Na demonstração, importe um dos arquivos de exemplo (link abaixo do envio).",
+        )
     batch = service.create_preview(db, user.id, account_id, file.filename or "", data)
     return BatchOut.of(batch)
 

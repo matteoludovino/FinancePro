@@ -63,7 +63,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mt-auto hidden border-t border-zinc-200 p-4 md:block">
           {/* The page renders right away; who is signed in fills in when /auth/me answers. */}
           <p className="truncate text-sm font-medium text-zinc-900">{me.data?.name ?? "\u00a0"}</p>
-          <p className="truncate text-xs text-zinc-500">{me.data?.email ?? "\u00a0"}</p>
+          <p className="truncate text-xs text-zinc-500">
+            {me.data?.is_sandbox ? "Demonstração" : (me.data?.email ?? "\u00a0")}
+          </p>
           <button
             type="button"
             onClick={() => logout.mutate()}
@@ -74,7 +76,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <main className="flex-1 p-4 md:p-8">
-        <div className="mx-auto max-w-5xl">{children}</div>
+        <div className="mx-auto max-w-5xl">
+          {me.data?.is_sandbox && (
+            <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+              Você está na demonstração: os dados são fictícios e somem depois de 3 horas sem uso. Para
+              importar, use os arquivos de exemplo da tela Importar.
+            </p>
+          )}
+          {children}
+        </div>
       </main>
     </div>
   );

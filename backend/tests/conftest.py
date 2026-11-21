@@ -27,6 +27,7 @@ from financepro.ai.classifier import Classifier  # noqa: E402  # after the envir
 from financepro.ai.routes import get_classifier  # noqa: E402
 from financepro.auth import limits  # noqa: E402
 from financepro.db import get_db, get_engine  # noqa: E402
+from financepro.demo import sandbox  # noqa: E402
 from financepro.main import create_app  # noqa: E402
 
 PASSWORD = "senha-forte-de-teste"
@@ -70,6 +71,7 @@ def db() -> Iterator[Session]:
 def _fresh_limits() -> None:
     limits.failed_by_email.clear()
     limits.all_attempts.clear()
+    sandbox._creations.clear()
 
 
 class AiSwitch:

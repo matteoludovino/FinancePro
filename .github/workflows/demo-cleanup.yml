@@ -1,0 +1,35 @@
+# Deletes demo sandboxes idle for 3 hours. Creating a sandbox also cleans up on the way in; this catches
+# the quiet days. It runs here, against the database, because the free API instance sleeps.
+# Needs the repository secret DEMO_DATABASE_URL (the same Neon URL the API uses).
+# Note: GitHub disables scheduled workflows after 60 days without repository activity.
+name: Demo cleanup
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # 03:00 in São Paulo
+  workflow_dispatch:
+
+concurrency:
+  group: demo-cleanup
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv sync --locked --no-dev
+      - name: Delete idle sandboxes
+        env:
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          ENVIRONMENT: production
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "DEMO_DATABASE_URL is not set"; exit 1; fi
+          uv run --no-dev python -m financepro.demo.cleanup

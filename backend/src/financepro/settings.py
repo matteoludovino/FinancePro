@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     # The web app's origin: state-changing requests must come from it (docs/adr/0002).
     web_origin: str = "http://localhost:3010"
 
+    # The public demo (docs/adr/0007): visitors get a sandbox each, sign-up with a password is closed and
+    # only the site's own sample statements can be imported, so nobody's real data reaches a public site.
+    demo_mode: bool = False
+    demo_max_sandboxes: int = 100
+
     # Categorization with Claude (docs/adr/0006). Without a key the AI is off and everything else works.
     anthropic_api_key: SecretStr | None = None
     ai_model: str = "claude-haiku-5-5"

@@ -14,8 +14,17 @@ from financepro.db import get_db
 from financepro.settings import get_settings
 
 TTL = timedelta(days=14)
-# A session in use is extended, but at most once a day: one write per day per browser, not per request.
-_EXTEND_AFTER = timedelta(days=1)
+# Demo sandboxes live while used: 3 hours idle and they are gone (docs/adr/0007).
+SANDBOX_TTL = timedelta(hours=3)
+
+
+def _ttl(user: User) -> timedelta:
+    return SANDBOX_TTL if user.is_sandbox else TTL
+
+
+def _extend_after(user: User) -> timedelta:
+    # A session in use is extended, but rarely: at most once a day (every 10 minutes for a sandbox).
+    return timedelta(minutes=10) if user.is_sandbox else timedelta(days=1)
 
 
 def cookie_name() -> str:
@@ -28,11 +37,11 @@ def _digest(token: str) -> bytes:
     return hashlib.sha256(token.encode()).digest()
 
 
-def _set_cookie(response: Response, token: str) -> None:
+def _set_cookie(response: Response, token: str, ttl: timedelta) -> None:
     response.set_cookie(
         cookie_name(),
         token,
-        max_age=int(TTL.total_seconds()),
+        max_age=int(ttl.total_seconds()),
         httponly=True,
         secure=get_settings().production,
         samesite="lax",
@@ -42,9 +51,9 @@ def _set_cookie(response: Response, token: str) -> None:
 
 def start(db: Session, response: Response, user: User) -> None:
     token = secrets.token_urlsafe(32)
-    db.add(SessionRow(user_id=user.id, token_hash=_digest(token), expires_at=clock.now() + TTL))
+    db.add(SessionRow(user_id=user.id, token_hash=_digest(token), expires_at=clock.now() + _ttl(user)))
     db.commit()
-    _set_cookie(response, token)
+    _set_cookie(response, token, _ttl(user))
 
 
 def end(db: Session, request: Request, response: Response) -> None:
@@ -66,10 +75,10 @@ def current_user(request: Request, response: Response, db: Annotated[Session, De
     if row is None:
         raise HTTPException(status_code=401, detail="Entre na sua conta para continuar.")
     session, user = row
-    if token and clock.now() + TTL - session.expires_at > _EXTEND_AFTER:
-        session.expires_at = clock.now() + TTL
+    if token and clock.now() + _ttl(user) - session.expires_at > _extend_after(user):
+        session.expires_at = clock.now() + _ttl(user)
         db.commit()
-        _set_cookie(response, token)  # the browser's copy lives as long as the session
+        _set_cookie(response, token, _ttl(user))  # the browser's copy lives as long as the session
     return user
 
 

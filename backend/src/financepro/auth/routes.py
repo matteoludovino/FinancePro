@@ -11,6 +11,7 @@ from financepro.auth.schemas import DeleteAccountIn, LoginIn, SignupIn, UserOut
 from financepro.auth.sessions import CurrentUser
 from financepro.categories import defaults
 from financepro.db import get_db
+from financepro.settings import get_settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -26,6 +27,8 @@ def _spend_attempt(key: str | None = None) -> None:
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 def signup(body: SignupIn, db: DB, response: Response) -> UserOut:
+    if get_settings().demo_mode:
+        raise HTTPException(status_code=403, detail="Na demonstração pública, use “Experimentar a demo”.")
     _spend_attempt()
     user = User(
         name=body.name, email=body.email.lower(), password_hash=passwords.hash_password(body.password)

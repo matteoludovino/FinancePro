@@ -313,7 +313,11 @@ function PreviewLine({
         {row.merchant && row.merchant !== row.description && (
           <p className="truncate text-xs text-zinc-500">{row.description}</p>
         )}
-        {row.message && <p className="text-xs text-red-700">{row.message}</p>}
+        {row.message && (
+          <p className={`text-xs ${row.status === "error" ? "text-red-700" : "text-zinc-500"}`}>
+            {row.message}
+          </p>
+        )}
         {row.match && (
           <div className="mt-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-900">
             Parecido com {formatDate(row.match.date)} · {row.match.description} ·{" "}

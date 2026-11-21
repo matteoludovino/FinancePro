@@ -32,3 +32,13 @@ SAMPLES: dict[str, Callable[[date], str]] = {
 def sample(name: str) -> str | None:
     make = SAMPLES.get(name)
     return make(clock.today()) if make else None
+
+
+def is_sample(content: bytes) -> bool:
+    """Whether a file is one of today's (or yesterday's: a download just before midnight) samples."""
+    today = clock.today()
+    return any(
+        make(day).encode() == content.replace(b"\r\n", b"\n")
+        for day in (today, today - timedelta(days=1))
+        for make in SAMPLES.values()
+    )

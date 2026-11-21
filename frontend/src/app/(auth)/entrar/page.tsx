@@ -4,8 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { DemoButton } from "@/components/demo-button";
 import { Alert, Button, Field, formValues, Input } from "@/components/ui";
 import { api, errorMessage, fieldError } from "@/lib/api";
+import { DEMO_MODE } from "@/lib/demo";
 import { safeNext } from "@/lib/navigation";
 import { ME } from "@/lib/session";
 import type { User } from "@/lib/types";
@@ -42,12 +44,18 @@ function LoginForm() {
       <Button type="submit" busy={login.isPending} className="w-full">
         Entrar
       </Button>
-      <p className="text-center text-sm text-zinc-600">
-        Não tem conta?{" "}
-        <Link href="/criar-conta" className="font-medium text-emerald-700 hover:underline">
-          Criar conta
-        </Link>
-      </p>
+      {DEMO_MODE ? (
+        <div className="border-t border-zinc-200 pt-4">
+          <DemoButton className="w-full" />
+        </div>
+      ) : (
+        <p className="text-center text-sm text-zinc-600">
+          Não tem conta?{" "}
+          <Link href="/criar-conta" className="font-medium text-emerald-700 hover:underline">
+            Criar conta
+          </Link>
+        </p>
+      )}
     </form>
   );
 }
