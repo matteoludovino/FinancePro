@@ -305,6 +305,11 @@ function PreviewLine({
       <td className="px-3 py-2 whitespace-nowrap">{row.date ? shortDate(row.date) : "—"}</td>
       <td className="max-w-80 px-3 py-2">
         <p className="truncate font-medium">{row.merchant || row.description}</p>
+        {row.installment_k && row.effective_date && row.date && row.effective_date !== row.date && (
+          <p className="text-xs text-zinc-500">
+            conta em {shortDate(row.effective_date)} (parcela {row.installment_k})
+          </p>
+        )}
         {row.merchant && row.merchant !== row.description && (
           <p className="truncate text-xs text-zinc-500">{row.description}</p>
         )}

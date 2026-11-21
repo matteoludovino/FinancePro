@@ -22,6 +22,7 @@ const EMPTY: Mapping = {
   date_format: "%d/%m/%Y",
   decimals: ",",
   sign: "as_is",
+  installment_dates: "auto",
 };
 
 /** Which column is what, shown next to the file's first rows. */
@@ -142,6 +143,19 @@ export function MappingEditor({
             >
               <option value=",">Vírgula (1.234,56)</option>
               <option value=".">Ponto (1234.56)</option>
+            </Select>
+          )}
+        </Field>
+        <Field label="Parcelas vêm com a data">
+          {(props) => (
+            <Select
+              {...props}
+              value={draft.installment_dates}
+              onChange={(e) => set({ installment_dates: e.target.value as Mapping["installment_dates"] })}
+            >
+              <option value="auto">Detectar</option>
+              <option value="billing">Da fatura</option>
+              <option value="purchase">Da compra original</option>
             </Select>
           )}
         </Field>

@@ -65,6 +65,7 @@ export type Mapping = {
   date_format: DateFormat;
   decimals: "," | ".";
   sign: "as_is" | "inverted";
+  installment_dates: "auto" | "billing" | "purchase";
 };
 
 export type RowStatus = "new" | "duplicate" | "possible_duplicate" | "error";
@@ -74,6 +75,9 @@ export type PreviewRow = {
   status: RowStatus;
   description: string;
   date: string | null;
+  effective_date: string | null;
+  installment_k: number | null;
+  installment_n: number | null;
   amount_cents: number | null;
   external_id: string | null;
   message: string | null;
@@ -115,4 +119,31 @@ export type Transaction = {
   category_source: "rule" | "merchant" | "ai" | "user" | null;
   notes: string;
   edited_at: string | null;
+  transfer_pair_id: number | null;
+  installment_group_id: number | null;
+  installment_k: number | null;
+  installment_n: number | null;
 };
+
+export type Statement = {
+  month: string;
+  opens: string;
+  closes: string;
+  due: string;
+  charges_cents: number;
+  paid_cents: number;
+  status: "open" | "paid" | "partial" | "unpaid";
+};
+
+export type Installments = {
+  id: number;
+  account_id: number;
+  merchant: string;
+  installments: number;
+  paid: number;
+  amount_cents: number;
+  last_month: string;
+  future: { month: string; amount_cents: number }[];
+};
+
+export type TransferPair = { outflow: Transaction; inflow: Transaction };

@@ -5,7 +5,7 @@ import hashlib
 import re
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -38,6 +38,8 @@ class Mapping(BaseModel):
     date_format: DateFormat
     decimals: Decimals
     sign: Sign = Sign.AS_IS
+    # Which date the file gives installments 2..n: the statement's ("billing") or the purchase's.
+    installment_dates: Literal["auto", "billing", "purchase"] = "auto"
 
     @model_validator(mode="after")
     def one_way_to_read_amounts(self) -> Self:

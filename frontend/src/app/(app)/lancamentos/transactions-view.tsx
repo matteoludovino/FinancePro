@@ -10,7 +10,7 @@ import { api, errorMessage } from "@/lib/api";
 import { useCategories } from "@/lib/categories";
 import { addMonths, currentMonth, monthLabel, shortDate } from "@/lib/dates";
 import { formatCents } from "@/lib/money";
-import type { Account, Category, Rule, Transaction } from "@/lib/types";
+import type { Account, Category, Rule, Transaction, TransferPair } from "@/lib/types";
 
 const PAGE = 50;
 
@@ -120,6 +120,7 @@ export function TransactionsView() {
       </div>
 
       {notice && <Alert tone="info">{notice}</Alert>}
+      <TransferSuggestions accounts={accounts.data ?? []} onDone={setNotice} />
 
       {!ready || page.isPending ? (
         <Loading />
@@ -265,6 +266,11 @@ function Row({
   onCreateRule: () => void;
 }) {
   const update = useTransactionUpdate();
+  const queryClient = useQueryClient();
+  const unlink = useMutation({
+    mutationFn: () => api.delete(`/transfers/${transaction.id}`),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["transactions"] }),
+  });
   const regular = transaction.kind === "regular";
   return (
     <tr className={`border-t border-zinc-100 ${selected ? "bg-emerald-50/50" : ""}`}>
@@ -278,7 +284,14 @@ function Row({
       </td>
       <td className="px-3 py-2 whitespace-nowrap text-zinc-600">{shortDate(transaction.date)}</td>
       <td className="max-w-72 px-3 py-2">
-        <p className="truncate font-medium text-zinc-900">{transaction.merchant}</p>
+        <p className="flex items-center gap-2 font-medium text-zinc-900">
+          <span className="truncate">{transaction.merchant}</span>
+          {transaction.installment_k && (
+            <Badge>
+              parcela {transaction.installment_k}/{transaction.installment_n}
+            </Badge>
+          )}
+        </p>
         <p className="truncate text-xs text-zinc-500">
           {account?.name} · {transaction.description_raw}
         </p>
@@ -299,15 +312,31 @@ function Row({
             }
           />
         ) : (
-          <span className="flex items-center gap-2">
-            <Badge>{transaction.kind === "transfer" ? "Transferência" : "Ignorada"}</Badge>
-            <button
-              type="button"
-              className="text-xs text-zinc-500 hover:text-zinc-900"
-              onClick={() => update.mutate({ id: transaction.id, body: { kind: "regular" } })}
-            >
-              é um gasto/receita
-            </button>
+          <span className="flex flex-wrap items-center gap-2">
+            <Badge>
+              {transaction.kind === "ignored"
+                ? "Ignorada"
+                : transaction.transfer_pair_id
+                  ? "Transferência ligada"
+                  : "Transferência"}
+            </Badge>
+            {transaction.transfer_pair_id ? (
+              <button
+                type="button"
+                className="text-xs text-zinc-500 hover:text-zinc-900"
+                onClick={() => unlink.mutate()}
+              >
+                desligar
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="text-xs text-zinc-500 hover:text-zinc-900"
+                onClick={() => update.mutate({ id: transaction.id, body: { kind: "regular" } })}
+              >
+                é um gasto/receita
+              </button>
+            )}
           </span>
         )}
       </td>
@@ -431,5 +460,89 @@ function CreateRule({
       onDone={() => undefined}
       onSaved={setSaved}
     />
+  );
+}
+
+function TransferSuggestions({
+  accounts,
+  onDone,
+}: {
+  accounts: Account[];
+  onDone: (message: string) => void;
+}) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const suggestions = useQuery({
+    queryKey: ["transactions", "transfer-suggestions"],
+    queryFn: () => api.get<TransferPair[]>("/transfers/suggestions"),
+  });
+  const decide = useMutation({
+    mutationFn: ({ pair, accept }: { pair: TransferPair; accept: boolean }) =>
+      api.post(accept ? "/transfers" : "/transfers/dismiss", {
+        first_id: pair.outflow.id,
+        second_id: pair.inflow.id,
+      }),
+    onSuccess: (_, { accept }) => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      onDone(
+        accept ? "Transferência ligada: ela não conta mais como gasto nem receita." : "Sugestão dispensada.",
+      );
+    },
+  });
+  const pairs = suggestions.data ?? [];
+  if (pairs.length === 0) return null;
+  const name = (id: number) => accounts.find((a) => a.id === id)?.name ?? "";
+  return (
+    <>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <span>
+          {pairs.length === 1
+            ? "Encontramos 1 possível transferência entre suas contas."
+            : `Encontramos ${pairs.length} possíveis transferências entre suas contas.`}{" "}
+          Confirmadas, elas deixam de contar como gasto e receita.
+        </span>
+        <Button variant="secondary" className="py-1" onClick={() => setOpen(true)}>
+          Revisar
+        </Button>
+      </div>
+      <Dialog open={open} onClose={() => setOpen(false)} title="Transferências entre suas contas">
+        <ul className="space-y-3">
+          {pairs.map((pair) => (
+            <li
+              key={`${pair.outflow.id}-${pair.inflow.id}`}
+              className="rounded-lg border border-zinc-200 p-3 text-sm"
+            >
+              <p className="font-medium text-zinc-900">
+                {formatCents(-pair.outflow.amount_cents)} de {name(pair.outflow.account_id)} para{" "}
+                {name(pair.inflow.account_id)}
+              </p>
+              <p className="mt-1 text-xs text-zinc-500">
+                {shortDate(pair.outflow.date)} · {pair.outflow.description_raw}
+                <br />
+                {shortDate(pair.inflow.date)} · {pair.inflow.description_raw}
+              </p>
+              <div className="mt-2 flex gap-2">
+                <Button
+                  className="py-1"
+                  busy={decide.isPending}
+                  onClick={() => decide.mutate({ pair, accept: true })}
+                >
+                  É transferência
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="py-1"
+                  busy={decide.isPending}
+                  onClick={() => decide.mutate({ pair, accept: false })}
+                >
+                  Não é
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {decide.error && <Alert>{errorMessage(decide.error)}</Alert>}
+      </Dialog>
+    </>
   );
 }

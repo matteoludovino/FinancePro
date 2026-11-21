@@ -12,6 +12,9 @@ class PreviewRow(BaseModel):
     status: str
     description: str
     date: str | None
+    effective_date: str | None = None
+    installment_k: int | None = None
+    installment_n: int | None = None
     amount_cents: int | None
     external_id: str | None
     message: str | None

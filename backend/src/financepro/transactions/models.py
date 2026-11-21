@@ -3,6 +3,7 @@ from enum import StrEnum
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     CheckConstraint,
     Date,
     DateTime,
@@ -56,6 +57,16 @@ class Transaction(Base):
     occurrence_n: Mapped[int] = mapped_column(SmallInteger, default=0)
 
     import_batch_id: Mapped[int | None] = mapped_column(ForeignKey("import_batches.id", ondelete="SET NULL"))
+    # The other side of a transfer between the person's accounts (a bill payment: checking ↔ card).
+    transfer_pair_id: Mapped[int | None] = mapped_column(ForeignKey("transactions.id", ondelete="SET NULL"))
+    # A person said a suggested pair isn't a transfer: never suggest this transaction again.
+    not_a_transfer: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    # "Parcela 3/10": the purchase it belongs to, and which installment of how many.
+    installment_group_id: Mapped[int | None] = mapped_column(
+        ForeignKey("installment_groups.id", ondelete="SET NULL")
+    )
+    installment_k: Mapped[int | None] = mapped_column(SmallInteger)
+    installment_n: Mapped[int | None] = mapped_column(SmallInteger)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # Set when a person changes the transaction; undoing its import then asks before discarding that work.
     edited_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
@@ -76,4 +87,10 @@ class Transaction(Base):
         Index("ix_transactions_import_batch_id", import_batch_id),
         CheckConstraint("kind = 'regular' OR category_id IS NULL", name="only_regular_has_category"),
         CheckConstraint("amount_cents <> 0", name="amount_not_zero"),
+        CheckConstraint(
+            "(installment_k IS NULL) = (installment_n IS NULL) AND (installment_k IS NULL OR "
+            "installment_k BETWEEN 1 AND installment_n)",
+            name="installment_numbers",
+        ),
+        Index("ix_transactions_installment_group_id", "installment_group_id"),
     )

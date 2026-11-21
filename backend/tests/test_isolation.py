@@ -21,6 +21,11 @@ def _account(owner: TestClient) -> int:
     return int(response.json()["id"])
 
 
+def _card(owner: TestClient) -> int:
+    body = {"name": "Cartão", "kind": "credit_card", "closing_day": 3, "due_day": 10}
+    return int(owner.post("/api/accounts", json=body).json()["id"])
+
+
 def _category(owner: TestClient) -> int:
     response = owner.post("/api/categories", json={"name": "Minha categoria", "type": "expense"})
     return int(response.json()["id"])
@@ -97,7 +102,9 @@ def test_a_foreign_id_is_not_found(signed_in: SignedIn, method: str, path: str) 
     url = path
     for param, factory in FACTORIES.items():
         if f"{{{param}}}" in url:
-            url = url.replace(f"{{{param}}}", str(factory(owner)))
+            # Only cards have statements: the owner's resource must be one the route serves.
+            make = _card if path.endswith("/statements") else factory
+            url = url.replace(f"{{{param}}}", str(make(owner)))
     response = intruder.request(method, url, json=BODIES.get((method, path)))
     assert response.status_code == 404, response.text
     # And the owner still can.

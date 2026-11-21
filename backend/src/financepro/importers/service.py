@@ -9,12 +9,14 @@ from sqlalchemy.orm import Session
 from financepro import clock
 from financepro.accounts.models import Account
 from financepro.accounts.service import get_account
+from financepro.cards import installments
 from financepro.importers import preview
 from financepro.importers.mapping import Mapping, detect, find_preset, signature
 from financepro.importers.models import BatchStatus, ImportBatch, ImportProfile
 from financepro.importers.reader import ReadError, Table, read_table
 from financepro.transactions.dedup import FP_VERSION
 from financepro.transactions.models import CategorySource, Transaction
+from financepro.transfers import service as transfers
 
 PREVIEW_TTL = timedelta(hours=1)
 SAMPLE_ROWS = 5
@@ -169,7 +171,9 @@ def confirm(db: Session, owner_id: int, batch_id: int, include_lines: set[int]) 
                 "owner_id": owner_id,
                 "account_id": batch.account_id,
                 "date": date.fromisoformat(r.date or ""),
-                "effective_date": date.fromisoformat(r.date or ""),
+                "effective_date": date.fromisoformat(r.effective_date or r.date or ""),
+                "installment_k": r.installment_k,
+                "installment_n": r.installment_n,
                 "amount_cents": r.amount_cents,
                 "description_raw": r.description,
                 "merchant": r.merchant[:60],
@@ -187,7 +191,11 @@ def confirm(db: Session, owner_id: int, batch_id: int, include_lines: set[int]) 
         result = db.execute(
             insert(Transaction).values(values).on_conflict_do_nothing().returning(Transaction.id)
         )
-        inserted = len(result.all())
+        new_ids = set(result.scalars())
+        inserted = len(new_ids)
+        new = list(db.scalars(select(Transaction).where(Transaction.id.in_(new_ids))))
+        installments.link(db, owner_id, new)
+        transfers.link_obvious(db, owner_id, new_ids)
 
     counts = preview.summarize(rows)
     batch.summary = {**counts, "inserted": inserted}
@@ -220,8 +228,10 @@ def undo(db: Session, owner_id: int, batch_id: int, discard_edits: bool) -> Impo
     if edited and not discard_edits:
         message = f"{edited} lançamento(s) desta importação foram editados por você. Desfazer descarta isso."
         raise HTTPException(status_code=409, detail=message)
-    # Removed for good, tombstones included: undoing means the file was never imported.
+    # Removed for good, tombstones included: undoing means the file was never imported. Transfer partners in
+    # other imports lose their link (ON DELETE SET NULL); purchase groups left empty go too.
     db.execute(delete(Transaction).where(of_batch))
+    installments.drop_empty_groups(db, owner_id)
     batch.status = BatchStatus.UNDONE
     batch.undone_at = clock.now()
     db.commit()

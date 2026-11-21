@@ -2,6 +2,7 @@
 
 from financepro.accounts.models import Account, AccountKind
 from financepro.auth.models import Session, User
+from financepro.cards.models import InstallmentGroup
 from financepro.categories.models import Category
 from financepro.categorization.models import Rule
 from financepro.importers.models import ImportBatch, ImportProfile
@@ -13,6 +14,7 @@ __all__ = [
     "Category",
     "ImportBatch",
     "ImportProfile",
+    "InstallmentGroup",
     "Rule",
     "Session",
     "Transaction",

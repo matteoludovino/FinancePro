@@ -12,6 +12,7 @@ from typing import Any, Literal
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from financepro.cards import installments
 from financepro.categorization.engine import Categorizer
 from financepro.importers.mapping import Mapping, Sign
 from financepro.importers.parsing import ParseError, parse_cents, parse_date
@@ -29,6 +30,9 @@ class Row:
     status: Status
     description: str
     date: str | None = None
+    effective_date: str | None = None
+    installment_k: int | None = None
+    installment_n: int | None = None
     amount_cents: int | None = None
     external_id: str | None = None
     occurrence_n: int = 0
@@ -86,19 +90,39 @@ def parse_rows(table: Table, mapping: Mapping) -> list[Row]:
             cells[mapping.external_id].strip()[:100] or None if mapping.external_id is not None else None
         )
         n = occurrences.next(day, cents, description)
+        count = installments.counter(description)
         rows.append(
             Row(
                 line,
                 "new",
                 description,
-                day.isoformat(),
-                cents,
-                external_id,
-                n,
-                fingerprint(day, cents, description, n),
+                date=day.isoformat(),
+                installment_k=count[0] if count else None,
+                installment_n=count[1] if count else None,
+                amount_cents=cents,
+                external_id=external_id,
+                occurrence_n=n,
+                fingerprint=fingerprint(day, cents, description, n),
             )
         )
+    _set_effective_dates(rows, mapping)
     return rows
+
+
+def _count(row: Row) -> tuple[int, int] | None:
+    return (row.installment_k, row.installment_n) if row.installment_k and row.installment_n else None
+
+
+def _set_effective_dates(rows: list[Row], mapping: Mapping) -> None:
+    dated = [row for row in rows if row.date]
+    convention: installments.Convention = (
+        installments.detect_convention((date.fromisoformat(r.date or ""), _count(r)) for r in dated)
+        if mapping.installment_dates == "auto"
+        else mapping.installment_dates
+    )
+    for row in dated:
+        day = installments.effective_date(date.fromisoformat(row.date or ""), _count(row), convention)
+        row.effective_date = day.isoformat()
 
 
 def classify(db: Session, owner_id: int, account_id: int, rows: list[Row]) -> None:

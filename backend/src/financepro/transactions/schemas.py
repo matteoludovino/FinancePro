@@ -22,6 +22,10 @@ class TransactionOut(BaseModel):
     category_source: CategorySource | None
     notes: str
     edited_at: dt.datetime | None
+    transfer_pair_id: int | None
+    installment_group_id: int | None
+    installment_k: int | None
+    installment_n: int | None
 
 
 class TransactionPage(BaseModel):
