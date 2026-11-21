@@ -7,7 +7,7 @@ import { CategorySelect } from "@/components/category-select";
 import { RuleForm } from "@/components/rule-form";
 import { Alert, Badge, Button, Card, Dialog, Input, Loading, PageHeader, Select } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
-import { useCategories } from "@/lib/categories";
+import { categoryLabel, useCategories } from "@/lib/categories";
 import { addMonths, currentMonth, monthLabel, shortDate } from "@/lib/dates";
 import { formatCents } from "@/lib/money";
 import type { Account, Category, Rule, Transaction, TransferPair } from "@/lib/types";
@@ -298,19 +298,32 @@ function Row({
       </td>
       <td className="px-3 py-2">
         {regular ? (
-          <CategorySelect
-            aria-label={`Categoria de ${transaction.merchant}`}
-            className={`py-1 text-xs sm:w-52 ${transaction.category_id === null ? "border-amber-400" : ""}`}
-            categories={categories}
-            value={transaction.category_id ?? ""}
-            emptyLabel="Sem categoria"
-            onChange={(e) =>
-              update.mutate({
-                id: transaction.id,
-                body: { category_id: e.target.value ? Number(e.target.value) : null },
-              })
-            }
-          />
+          <>
+            <CategorySelect
+              aria-label={`Categoria de ${transaction.merchant}`}
+              className={`py-1 text-xs sm:w-52 ${transaction.category_id === null ? "border-amber-400" : ""}`}
+              categories={categories}
+              value={transaction.category_id ?? ""}
+              emptyLabel="Sem categoria"
+              onChange={(e) =>
+                update.mutate({
+                  id: transaction.id,
+                  body: { category_id: e.target.value ? Number(e.target.value) : null },
+                })
+              }
+            />
+            {transaction.category_id === null && transaction.ai_category_id !== null && (
+              <button
+                type="button"
+                className="mt-1 block text-left text-xs text-emerald-700 hover:underline"
+                onClick={() =>
+                  update.mutate({ id: transaction.id, body: { category_id: transaction.ai_category_id } })
+                }
+              >
+                IA sugere: {categoryLabel(categories, transaction.ai_category_id)} · usar
+              </button>
+            )}
+          </>
         ) : (
           <span className="flex flex-wrap items-center gap-2">
             <Badge>

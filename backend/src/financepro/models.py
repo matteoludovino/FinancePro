@@ -1,6 +1,7 @@
 """Every ORM model, imported here so Alembic and the tests see the full schema."""
 
 from financepro.accounts.models import Account, AccountKind
+from financepro.ai.models import AiSuggestion, AiUsage
 from financepro.auth.models import Session, User
 from financepro.cards.models import InstallmentGroup
 from financepro.categories.models import Category
@@ -11,6 +12,8 @@ from financepro.transactions.models import Transaction
 __all__ = [
     "Account",
     "AccountKind",
+    "AiSuggestion",
+    "AiUsage",
     "Category",
     "ImportBatch",
     "ImportProfile",

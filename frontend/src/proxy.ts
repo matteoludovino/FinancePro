@@ -26,6 +26,7 @@ export const config = {
     "/lancamentos/:path*",
     "/importar/:path*",
     "/cartoes/:path*",
+    "/sugestoes/:path*",
     "/contas/:path*",
     "/categorias/:path*",
     "/regras/:path*",

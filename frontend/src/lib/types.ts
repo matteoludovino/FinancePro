@@ -123,6 +123,19 @@ export type Transaction = {
   installment_group_id: number | null;
   installment_k: number | null;
   installment_n: number | null;
+  ai_category_id: number | null;
+  ai_confidence: "low" | "medium" | "high" | null;
+};
+
+export type AiStatus = { enabled: boolean; used_today: number; daily_limit: number };
+
+export type AiGroup = {
+  merchant: string;
+  category_id: number;
+  confidence: "low" | "medium" | "high";
+  transaction_ids: number[];
+  total_cents: number;
+  example: string;
 };
 
 export type Statement = {

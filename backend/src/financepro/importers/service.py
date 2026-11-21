@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from financepro import clock
 from financepro.accounts.models import Account
 from financepro.accounts.service import get_account
+from financepro.ai import service as ai
 from financepro.cards import installments
 from financepro.importers import preview
 from financepro.importers.mapping import Mapping, detect, find_preset, signature
@@ -196,6 +197,7 @@ def confirm(db: Session, owner_id: int, batch_id: int, include_lines: set[int]) 
         new = list(db.scalars(select(Transaction).where(Transaction.id.in_(new_ids))))
         installments.link(db, owner_id, new)
         transfers.link_obvious(db, owner_id, new_ids)
+        ai.apply_cached(db, owner_id, new_ids)  # answers already known for these merchants: no model call
 
     counts = preview.summarize(rows)
     batch.summary = {**counts, "inserted": inserted}

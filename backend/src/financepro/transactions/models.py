@@ -47,6 +47,10 @@ class Transaction(Base):
     kind: Mapped[Kind] = mapped_column(db_enum(Kind, "transaction_kind"), default=Kind.REGULAR)
     category_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id", ondelete="SET NULL"))
     category_source: Mapped[CategorySource | None] = mapped_column(db_enum(CategorySource, "category_source"))
+    # The AI's suggestion, kept apart from the category: nothing it says counts until a person accepts it.
+    ai_category_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id", ondelete="SET NULL"))
+    ai_confidence: Mapped[str | None] = mapped_column(String(10))
+    ai_dismissed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     notes: Mapped[str] = mapped_column(Text, default="", server_default="")
 
     # Deduplication (ADR 0003). The bank's own id when the file has one, and always a fingerprint of the

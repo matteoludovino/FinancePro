@@ -10,6 +10,7 @@ const NAV = [
   { href: "/lancamentos", label: "Lançamentos" },
   { href: "/importar", label: "Importar" },
   { href: "/cartoes", label: "Cartões" },
+  { href: "/sugestoes", label: "Sugestões da IA" },
   { href: "/contas", label: "Contas" },
   { href: "/categorias", label: "Categorias" },
   { href: "/regras", label: "Regras" },

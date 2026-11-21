@@ -26,6 +26,8 @@ class TransactionOut(BaseModel):
     installment_group_id: int | None
     installment_k: int | None
     installment_n: int | None
+    ai_category_id: int | None
+    ai_confidence: str | None
 
 
 class TransactionPage(BaseModel):

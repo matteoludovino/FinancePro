@@ -23,7 +23,9 @@ os.environ["DATABASE_URL"] = TEST_URL.render_as_string(hide_password=False)
 os.environ["ENVIRONMENT"] = "test"
 get_settings.cache_clear()
 
-from financepro.auth import limits  # noqa: E402  # after the environment points at the test database
+from financepro.ai.classifier import Classifier  # noqa: E402  # after the environment points at the test database
+from financepro.ai.routes import get_classifier  # noqa: E402
+from financepro.auth import limits  # noqa: E402
 from financepro.db import get_db, get_engine  # noqa: E402
 from financepro.main import create_app  # noqa: E402
 
@@ -70,11 +72,23 @@ def _fresh_limits() -> None:
     limits.all_attempts.clear()
 
 
+class AiSwitch:
+    """The model client the app sees: None (no key, AI off) unless a test plugs in a fake."""
+
+    classifier: Classifier | None = None
+
+
 @pytest.fixture
-def make_client(db: Session) -> Iterator[Callable[[], TestClient]]:
+def ai() -> AiSwitch:
+    return AiSwitch()
+
+
+@pytest.fixture
+def make_client(db: Session, ai: AiSwitch) -> Iterator[Callable[[], TestClient]]:
     """Each client is a separate browser (its own cookies), all sharing the test's transaction."""
     app = create_app()
     app.dependency_overrides[get_db] = lambda: db
+    app.dependency_overrides[get_classifier] = lambda: ai.classifier
     clients: list[TestClient] = []
 
     def make() -> TestClient:

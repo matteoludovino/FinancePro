@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import PostgresDsn
+from pydantic import PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +13,13 @@ class Settings(BaseSettings):
     database_url: PostgresDsn
     # The web app's origin: state-changing requests must come from it (docs/adr/0002).
     web_origin: str = "http://localhost:3010"
+
+    # Categorization with Claude (docs/adr/0006). Without a key the AI is off and everything else works.
+    anthropic_api_key: SecretStr | None = None
+    ai_model: str = "claude-haiku-5-5"
+    # Daily token ceilings: per person, and for the whole installation (the real cost control).
+    ai_daily_tokens_per_user: int = 60_000
+    ai_daily_tokens_global: int = 1_500_000
 
     @property
     def production(self) -> bool:
