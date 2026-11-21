@@ -15,11 +15,13 @@ const GENERIC = "Algo deu errado. Tente de novo em instantes.";
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   let response: Response;
+  const json = body !== undefined && !(body instanceof FormData);
   try {
     response = await fetch(`/api${path}`, {
       method,
-      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      // FormData sets its own multipart Content-Type, boundary included.
+      headers: json ? { "Content-Type": "application/json" } : undefined,
+      body: body === undefined ? undefined : json ? JSON.stringify(body) : (body as FormData),
       credentials: "same-origin",
     });
   } catch {
@@ -41,6 +43,7 @@ export const api = {
   patch: <T>(path: string, body: unknown) => request<T>("PATCH", path, body),
   put: <T>(path: string, body: unknown) => request<T>("PUT", path, body),
   delete: <T = void>(path: string, body?: unknown) => request<T>("DELETE", path, body),
+  upload: <T>(path: string, form: FormData) => request<T>("POST", path, form),
 };
 
 /** The message to show for any error a query or mutation throws. */

@@ -44,6 +44,7 @@ ignore = ["RUF001", "RUF002", "RUF003"] # Portuguese strings with accents are in
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "S311"]
 "migrations/**" = ["E501"]
+"src/financepro/demo/**" = ["S311"] # fictional data, not cryptography
 
 [tool.mypy]
 strict = true
@@ -55,3 +56,5 @@ explicit_package_bases = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
+# A deprecation today is a broken build after the next upgrade.
+filterwarnings = ["error"]

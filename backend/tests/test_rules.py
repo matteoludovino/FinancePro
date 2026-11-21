@@ -94,7 +94,7 @@ def _preview(browser: TestClient, description: str, **extra: object) -> dict[str
 
 @pytest.mark.parametrize(
     "description",
-    ["Pagamento recebido", "Pagamento de fatura", "Aplicação RDB", "Resgate RDB"],
+    ["Pagamento recebido", "Pagamento de fatura", "PAGAMENTO EFETUADO", "Aplicação RDB", "Resgate RDB"],
 )
 def test_default_rules_keep_transfers_out_of_spending(signed_in: SignedIn, description: str) -> None:
     decision = _preview(signed_in(), description)

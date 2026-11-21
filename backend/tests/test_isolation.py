@@ -10,6 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from financepro.main import create_app
+from tests.importing import import_file, transactions, upload
 
 SignedIn = Callable[..., TestClient]
 
@@ -31,24 +32,53 @@ def _rule(owner: TestClient) -> int:
     return int(response.json()["id"])
 
 
+def _batch(owner: TestClient) -> int:
+    return int(upload(owner, _account(owner), "Data;Descrição;Valor\n03/11/2026;LOJA;-5,00\n")["id"])
+
+
+def _transaction(owner: TestClient) -> int:
+    import_file(owner, _account(owner), "Data;Descrição;Valor\n03/11/2026;LOJA;-5,00\n")
+    return int(transactions(owner)[0]["id"])
+
+
 FACTORIES: dict[str, Callable[[TestClient], int]] = {
     "account_id": _account,
     "category_id": _category,
     "rule_id": _rule,
+    "batch_id": _batch,
+    "transaction_id": _transaction,
 }
 
 # Plausible bodies, so a request reaches the ownership check instead of failing validation first.
-BODIES: dict[str, dict[str, object]] = {
-    "PATCH": {"name": "Outro nome"},
-    "PUT": {"match_type": "contains", "pattern": "99app", "sets_kind": "transfer"},
+BODIES: dict[tuple[str, str], dict[str, object]] = {
+    ("PATCH", "/api/accounts/{account_id}"): {"name": "Outro nome"},
+    ("PATCH", "/api/categories/{category_id}"): {"name": "Outro nome"},
+    ("PUT", "/api/rules/{rule_id}"): {"match_type": "contains", "pattern": "99app", "sets_kind": "transfer"},
+    ("PUT", "/api/imports/{batch_id}/mapping"): {
+        "date": 0,
+        "description": [1],
+        "amount": 2,
+        "date_format": "%d/%m/%Y",
+        "decimals": ",",
+    },
+    ("POST", "/api/imports/{batch_id}/confirm"): {},
+    ("POST", "/api/imports/{batch_id}/undo"): {},
+    ("PATCH", "/api/transactions/{transaction_id}"): {"notes": "x"},
 }
+
+
+# Routes with a path parameter that belong to no one, on purpose.
+PUBLIC = {"/api/samples/{name}"}
 
 
 def _routes_with_ids() -> list[tuple[str, str]]:
     # The OpenAPI document is the public list of every operation, however routers are nested.
     paths: dict[str, dict[str, object]] = create_app().openapi()["paths"]
     return [
-        (method.upper(), path) for path, operations in paths.items() if "{" in path for method in operations
+        (method.upper(), path)
+        for path, operations in paths.items()
+        if "{" in path and path not in PUBLIC
+        for method in operations
     ]
 
 
@@ -68,7 +98,7 @@ def test_a_foreign_id_is_not_found(signed_in: SignedIn, method: str, path: str) 
     for param, factory in FACTORIES.items():
         if f"{{{param}}}" in url:
             url = url.replace(f"{{{param}}}", str(factory(owner)))
-    response = intruder.request(method, url, json=BODIES.get(method))
+    response = intruder.request(method, url, json=BODIES.get((method, path)))
     assert response.status_code == 404, response.text
     # And the owner still can.
     if method == "GET":

@@ -1,9 +1,10 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, Enum, ForeignKey, String, func
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
+from financepro.common.enums import db_enum
 from financepro.db import Base
 
 
@@ -24,17 +25,6 @@ class Kind(StrEnum):
     IGNORED = "ignored"
 
 
-def _enum[E: StrEnum](enum: type[E], name: str) -> Enum:
-    return Enum(
-        enum,
-        native_enum=False,
-        create_constraint=True,
-        length=20,
-        name=name,
-        values_callable=lambda members: [m.value for m in members],
-    )
-
-
 class Rule(Base):
     """ "When the description contains 'uber', it's Transport". The most specific matching rule wins."""
 
@@ -42,11 +32,11 @@ class Rule(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    match_type: Mapped[MatchType] = mapped_column(_enum(MatchType, "rule_match_type"))
+    match_type: Mapped[MatchType] = mapped_column(db_enum(MatchType, "rule_match_type"))
     # Stored in canonical form (lowercase, no accents), the form descriptions are compared in.
     pattern: Mapped[str] = mapped_column(String(100))
     # Either a category (for regular transactions) or a kind that has none (transfer, ignored).
-    sets_kind: Mapped[Kind] = mapped_column(_enum(Kind, "rule_sets_kind"), default=Kind.REGULAR)
+    sets_kind: Mapped[Kind] = mapped_column(db_enum(Kind, "rule_sets_kind"), default=Kind.REGULAR)
     category_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id", ondelete="CASCADE"))
     # Optional narrowing: only this account, only amounts in this range (absolute value, in cents).
     account_id: Mapped[int | None] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"))

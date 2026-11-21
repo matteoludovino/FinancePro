@@ -9,6 +9,8 @@ from financepro.categorization import service
 from financepro.categorization.engine import Categorizer
 from financepro.categorization.schemas import PreviewIn, PreviewOut, RuleIn, RuleOut
 from financepro.db import get_db
+from financepro.transactions import service as transactions
+from financepro.transactions.schemas import ApplyOut
 
 router = APIRouter(prefix="/rules", tags=["rules"])
 
@@ -48,3 +50,10 @@ def preview(body: PreviewIn, user: CurrentUser, db: DB) -> PreviewOut:
         source=decision.source,
         rule_id=decision.rule_id,
     )
+
+
+@router.post("/{rule_id}/apply")
+def apply(rule_id: int, user: CurrentUser, db: DB) -> ApplyOut:
+    """Re-categorizes the existing transactions this rule matches (not the ones set by hand)."""
+    rule = service.get_rule(db, user.id, rule_id)
+    return ApplyOut(updated=transactions.apply_rule(db, user.id, rule))

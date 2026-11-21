@@ -53,6 +53,8 @@ export function Select({ className, ...props }: ComponentProps<"select">) {
   return <select className={cx(CONTROL, className)} {...props} />;
 }
 
+export type FieldProps = { id: string; "aria-invalid"?: boolean; "aria-describedby"?: string };
+
 /** A label, a control and its message, wired for screen readers. */
 export function Field({
   label,
@@ -63,7 +65,7 @@ export function Field({
   label: string;
   hint?: string;
   error?: string;
-  children: (props: { id: string; "aria-invalid"?: boolean; "aria-describedby"?: string }) => ReactNode;
+  children: (props: FieldProps) => ReactNode;
 }) {
   const id = useId();
   const messageId = `${id}-message`;
@@ -113,12 +115,13 @@ export function Badge({
   tone = "zinc",
 }: {
   children: ReactNode;
-  tone?: "zinc" | "amber" | "emerald";
+  tone?: "zinc" | "amber" | "emerald" | "red";
 }) {
   const tones = {
     zinc: "bg-zinc-100 text-zinc-700",
     amber: "bg-amber-100 text-amber-800",
     emerald: "bg-emerald-100 text-emerald-800",
+    red: "bg-red-100 text-red-800",
   };
   return <span className={cx("rounded-full px-2 py-0.5 text-xs font-medium", tones[tone])}>{children}</span>;
 }

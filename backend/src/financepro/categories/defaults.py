@@ -10,6 +10,8 @@ from financepro.text import canonical
 # Lines that move money between the person's own pockets. Without these, a bill payment or money put into
 # a savings box ("Caixinha", shown as RDB on Nubank statements) would look like enormous spending.
 DEFAULT_RULES: tuple[tuple[MatchType, str, Kind], ...] = (
+    # Every wording the normalizer reads as a bill payment ("Pagamento efetuado", "Pagamento recebido"...).
+    (MatchType.MERCHANT, "pagamento de fatura", Kind.TRANSFER),
     (MatchType.CONTAINS, "pagamento de fatura", Kind.TRANSFER),
     (MatchType.CONTAINS, "pagamento da fatura", Kind.TRANSFER),
     (MatchType.STARTS_WITH, "pagamento recebido", Kind.TRANSFER),

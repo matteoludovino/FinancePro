@@ -7,6 +7,8 @@ import { useLogout, useMe } from "@/lib/session";
 
 const NAV = [
   { href: "/painel", label: "Painel" },
+  { href: "/lancamentos", label: "Lançamentos" },
+  { href: "/importar", label: "Importar" },
   { href: "/contas", label: "Contas" },
   { href: "/categorias", label: "Categorias" },
   { href: "/regras", label: "Regras" },

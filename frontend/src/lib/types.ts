@@ -52,3 +52,67 @@ export type Decision = {
   source: "rule" | "merchant" | null;
   rule_id: number | null;
 };
+
+export type DateFormat = "%d/%m/%Y" | "%d/%m/%y" | "%Y-%m-%d" | "%d-%m-%Y" | "%d.%m.%Y";
+
+export type Mapping = {
+  date: number;
+  description: number[];
+  amount: number | null;
+  debit: number | null;
+  credit: number | null;
+  external_id: number | null;
+  date_format: DateFormat;
+  decimals: "," | ".";
+  sign: "as_is" | "inverted";
+};
+
+export type RowStatus = "new" | "duplicate" | "possible_duplicate" | "error";
+
+export type PreviewRow = {
+  line: number;
+  status: RowStatus;
+  description: string;
+  date: string | null;
+  amount_cents: number | null;
+  external_id: string | null;
+  message: string | null;
+  match: { id: number; date: string; description: string; amount_cents: number } | null;
+  merchant: string;
+  kind: Kind;
+  category_id: number | null;
+  category_source: string | null;
+};
+
+export type Batch = {
+  id: number;
+  account_id: number;
+  status: "preview" | "committed" | "undone";
+  filename: string;
+  detected_by: string;
+  label: string;
+  warnings: string[];
+  header: string[];
+  sample: string[][];
+  mapping: Mapping | null;
+  summary: Partial<Record<RowStatus | "total" | "inserted", number>>;
+  rows: PreviewRow[];
+  created_at: string;
+  committed_at: string | null;
+  undone_at: string | null;
+};
+
+export type Transaction = {
+  id: number;
+  account_id: number;
+  date: string;
+  effective_date: string;
+  amount_cents: number;
+  description_raw: string;
+  merchant: string;
+  kind: Kind;
+  category_id: number | null;
+  category_source: "rule" | "merchant" | "ai" | "user" | null;
+  notes: string;
+  edited_at: string | null;
+};

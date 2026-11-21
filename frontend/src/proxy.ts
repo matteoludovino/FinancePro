@@ -23,6 +23,8 @@ export const config = {
   // The app's pages; the landing page, /api and static files never pass through here.
   matcher: [
     "/painel/:path*",
+    "/lancamentos/:path*",
+    "/importar/:path*",
     "/contas/:path*",
     "/categorias/:path*",
     "/regras/:path*",

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     environment: Literal["development", "test", "production"] = "development"
     # postgresql+psycopg://user:password@host:port/db (a plain postgres:// URL is accepted too).
     database_url: PostgresDsn
-    # The web app's origin: state-changing requests must come from it (see ADR on sessions).
+    # The web app's origin: state-changing requests must come from it (docs/adr/0002).
     web_origin: str = "http://localhost:3010"
 
     @property
